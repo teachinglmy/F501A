@@ -253,20 +253,20 @@
 <div class="container">
     <!-- Home Page / Mode Selection -->
     <div id="page-home" class="page active">
-        <h1>四捨五入法 互動學習課件</h1>
-        <p style="text-align: center; font-size: 18px; color: #666;">請選擇學習模式：</p>
+        <h1>多位數：四捨五入法</h1>
+        <p style="text-align: center; font-size: 18px; color: #666;">請選擇模式：</p>
         
         <div class="mode-selection">
             <div class="mode-card" onclick="startMode1()">
                 <div style="font-size: 50px;">📘</div>
                 <h2>玩法一：逐步引導模式</h2>
-                <p>跟隨步驟，一步步學習如何利用數線及位值進行四捨五入。</p>
+                <p>跟隨步驟，一步步學習如何使用四捨五入。</p>
             </div>
             
             <div class="mode-card" onclick="startMode2()">
                 <div style="font-size: 50px;">🏆</div>
                 <h2>玩法二：挑戰模式</h2>
-                <p>限時 90 秒！挑戰電腦出題，考考你的湊整速度與準確度！</p>
+                <p>限時 90 秒！考考你的湊整速度與準確度！</p>
             </div>
         </div>
     </div>
@@ -280,8 +280,8 @@
 
         <!-- Step 1 -->
         <div id="step-1" class="step-box">
-            <p><strong>第一步：</strong>請輸入一個多位數（例如：87654321）</p>
-            <input type="number" id="num-input" value="87654321" min="1000" max="999999999">
+            <p><strong>第一步：</strong>請輸入一個多位數</p>
+            <input type="number" id="num-input" value="" min="1000" max="999999999">
             <button class="btn" onclick="submitStep1()">確認輸入</button>
         </div>
 
@@ -372,7 +372,7 @@
 
             <!-- Step 8 -->
             <div id="step-8" class="step-box">
-                <p><strong>第八步：</strong>提問：那個人比較接近哪一個巴士站？</p>
+                <p><strong>第八步：</strong>這個人比較接近哪一個巴士站？</p>
                 <div id="step8-options"></div>
                 <div id="feedback-step8" class="feedback-msg"></div>
             </div>
