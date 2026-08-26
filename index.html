@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>多位數：四捨五入法</title>
+    <title>多位數_四捨五入法</title>
     <style>
         :root {
             --primary-color: #4a90e2;
@@ -111,7 +111,7 @@
             text-align: center;
         }
 
-        /* 置頂固定（Sticky）位值表樣式 */
+        /* Place Value Chart */
         #pv-chart-section {
             position: sticky;
             top: 10px;
@@ -124,7 +124,6 @@
             border: 2px solid #e0e0e0;
         }
 
-        /* Place Value Table */
         .pv-table-container { overflow-x: auto; }
         .pv-table {
             border-collapse: collapse;
@@ -138,6 +137,7 @@
             padding: 10px;
             width: 11.11%;
             font-size: 20px;
+            white-space: nowrap; /* 強制單行顯示 */
         }
         .pv-table th { background-color: #f0f4f8; color: #2c3e50; }
         .pv-table td.digit-cell {
@@ -152,7 +152,7 @@
             color: #d9534f;
         }
 
-        /* Number Line */
+        /* Number Line Visual */
         .number-line-container {
             margin: 40px 0;
             padding: 20px;
@@ -175,13 +175,22 @@
             font-weight: bold;
             font-size: 18px;
             color: #01579b;
+            white-space: nowrap; /* 防手機換行 */
         }
         .bus-stop-icon { font-size: 30px; display: block; }
         .line-wrapper { position: relative; height: 60px; margin: 0 40px; }
         .main-line { position: absolute; top: 30px; left: 0; right: 0; height: 4px; background-color: #333; }
         .tick-marks { position: absolute; top: 15px; left: 0; right: 0; display: flex; justify-content: space-between; }
         .tick { width: 2px; height: 30px; background-color: #666; position: relative; }
-        .tick-label { position: absolute; top: 35px; left: 50%; transform: translateX(-50%); font-size: 12px; color: #555; white-space: nowrap; }
+        .tick-label { 
+            position: absolute; 
+            top: 35px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            font-size: 12px; 
+            color: #555; 
+            white-space: nowrap; /* 防手機換行 */
+        }
         .person-icon { position: absolute; top: -15px; font-size: 32px; transform: translateX(-50%); transition: left 0.5s ease-in-out; }
 
         select, input[type="text"], input[type="number"] {
@@ -191,7 +200,7 @@
             border: 1px solid #ccc;
         }
 
-        /* Mode 2 Challenge Styles */
+        /* Mode 2 Styles */
         .challenge-dashboard {
             display: flex;
             justify-style: space-around;
@@ -224,9 +233,11 @@
             font-weight: bold;
             color: #2c3e50;
             margin-bottom: 20px;
+            white-space: nowrap; /* 防止題目中的大數字在手機換行 */
+            overflow-x: auto;
         }
 
-        /* Leaderboard Table */
+        /* Leaderboard */
         .leaderboard-table {
             width: 100%;
             border-collapse: collapse;
@@ -251,41 +262,39 @@
 <body>
 
 <div class="container">
-    <!-- Home Page / Mode Selection -->
+    <!-- Home Page -->
     <div id="page-home" class="page active">
-        <h1>多位數：四捨五入法</h1>
-        <p style="text-align: center; font-size: 18px; color: #666;">請選擇模式：</p>
+        <h1>多位數_四捨五入法</h1>
+        <p style="text-align: center; font-size: 18px; color: #666;">請選擇學習模式：</p>
         
         <div class="mode-selection">
             <div class="mode-card" onclick="startMode1()">
                 <div style="font-size: 50px;">📘</div>
                 <h2>逐步引導模式</h2>
-                <p>跟隨步驟，一步步學習如何使用四捨五入。</p>
+                <p>跟隨步驟，一步步學習如何利用數線及位值進行四捨五入。</p>
             </div>
             
             <div class="mode-card" onclick="startMode2()">
                 <div style="font-size: 50px;">🏆</div>
                 <h2>挑戰模式</h2>
-                <p>限時 90 秒！考考你的湊整速度與準確度！</p>
+                <p>限時 90 秒！挑戰電腦出題，考考你的湊整速度與準確度！</p>
             </div>
         </div>
     </div>
 
-    <!-- Mode 1: Step-by-Step Learning -->
+    <!-- Mode 1 -->
     <div id="page-mode1" class="page">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2>玩法一：逐步教學模式</h2>
+            <h2>逐步教學模式</h2>
             <button class="btn btn-warning" onclick="goHome()">回到主頁</button>
         </div>
 
-        <!-- Step 1 -->
         <div id="step-1" class="step-box">
-            <p><strong>第一步：</strong>請輸入一個多位數</p>
-            <input type="number" id="num-input" value="" min="1000" max="999999999">
+            <p><strong>第一步：</strong>請輸入一個多位數（例如：87654321）</p>
+            <input type="number" id="num-input" value="87654321" min="1000" max="999999999">
             <button class="btn" onclick="submitStep1()">確認輸入</button>
         </div>
 
-        <!-- Sticky Place Value Chart Display Area -->
         <div id="pv-chart-section" style="display:none;">
             <h3>📌 多位數表（位值表達法）</h3>
             <div class="pv-table-container">
@@ -315,7 +324,6 @@
                             <td class="digit-cell" id="td-十"></td>
                             <td class="digit-cell" id="td-個"></td>
                         </tr>
-                        <!-- Step 9 Answer Row -->
                         <tr id="pv-result-row" style="display: none; background-color: #e8f5e9;">
                             <td colspan="9" style="text-align: left; padding: 15px;">
                                 <strong>湊整後的數：</strong>
@@ -328,14 +336,12 @@
             </div>
         </div>
 
-        <!-- Step 2 -->
         <div id="step-2" class="step-box" style="display:none;">
             <p><strong>第二步：</strong>用四捨五入法把多位數湊整至 
                 <select id="step2-place-select" onchange="submitStep2()"></select> 位
             </p>
         </div>
 
-        <!-- Step 3 & 4 -->
         <div id="step-4" class="step-box" style="display:none;">
             <p><strong>第三步：</strong>系統已在上表中框起選取的位值連同數字。</p>
             <p><strong>第四步：</strong>應考慮 
@@ -345,7 +351,6 @@
             <div id="feedback-step4" class="feedback-msg"></div>
         </div>
 
-        <!-- Step 5, 6, 7, 8: Number Line Visual -->
         <div id="step-numberline-section" style="display:none;">
             <div class="step-box">
                 <p><strong>第五至七步：</strong>觀察數線與巴士站</p>
@@ -370,15 +375,13 @@
                 </div>
             </div>
 
-            <!-- Step 8 -->
             <div id="step-8" class="step-box">
-                <p><strong>第八步：</strong>這個人比較接近哪一個巴士站？</p>
+                <p><strong>第八步：</strong>提問：那個人比較接近哪一個巴士站？</p>
                 <div id="step8-options"></div>
                 <div id="feedback-step8" class="feedback-msg"></div>
             </div>
         </div>
 
-        <!-- Completion Controls -->
         <div id="step-complete-section" class="step-box" style="display:none; text-align: center; background-color: #e8f5e9; border-left-color: var(--success-color);">
             <h3 style="color: #2e7d32;">🎉 太棒了！答對了！</h3>
             <button class="btn btn-success" onclick="restartLesson()">下一題（重新開始）</button>
@@ -386,14 +389,13 @@
         </div>
     </div>
 
-    <!-- Mode 2: Challenge Mode -->
+    <!-- Mode 2 -->
     <div id="page-mode2" class="page">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2>玩法二：限時挑戰模式</h2>
+            <h2>限時挑戰模式</h2>
             <button class="btn btn-warning" onclick="goHome()">回到主頁</button>
         </div>
 
-        <!-- Game Screen -->
         <div id="m2-game-screen">
             <div class="challenge-dashboard">
                 <div class="stat-box">
@@ -420,7 +422,6 @@
             </div>
         </div>
 
-        <!-- Submission Screen (Class & Name Input) -->
         <div id="m2-submit-screen" style="display: none;">
             <div class="step-box" style="text-align: center; background-color: #fdf2e9; border-left-color: var(--secondary-color);">
                 <h2>⏰ 時間到！挑戰完成！</h2>
@@ -442,7 +443,6 @@
             </div>
         </div>
 
-        <!-- Leaderboard Screen -->
         <div id="m2-leaderboard-screen" style="display: none;">
             <h2>🏆 龍虎榜 🏆</h2>
             <div id="leaderboard-container">
@@ -457,12 +457,11 @@
                         </tr>
                     </thead>
                     <tbody id="leaderboard-tbody">
-                        <!-- Loaded Dynamically -->
+                        <!-- 動態載入區域 -->
                     </tbody>
                 </table>
             </div>
 
-            <!-- Action Buttons at bottom of same page -->
             <div style="text-align: center; margin-top: 30px;">
                 <button class="btn btn-success" onclick="startMode2()">🔄 重新開始挑戰</button>
                 <button class="btn btn-warning" onclick="goHome()">🏠 回到主頁</button>
@@ -473,6 +472,7 @@
 </div>
 
 <script>
+    // ⚠️ 請填入你的 Google Apps Script Web App 網址
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzvjGwseSfSWATjjo45Z0N2vCsTX95oWBn3jD9VXxe59G-I6_Nsmsontkv_6FGAMl5/exec";
 
     const PLACE_VALUES = ['個', '十', '百', '千', '萬', '十萬', '百萬', '千萬', '億'];
@@ -481,15 +481,12 @@
         '十萬': 100000, '百萬': 1000000, '千萬': 10000000, '億': 100000000
     };
 
-    // 💡 工具函式：將多位數格式化為每三位以「空格」分隔
+    // 💡 關鍵修復：使用 \u00A0 (不換行空格 Non-breaking Space) 防止手機上數字被截斷成兩行
     function formatNumberWithSpaces(num) {
         if (num === null || num === undefined) return '';
-        function formatNumberWithSpaces(num) {
-    if (num === null || num === undefined) return '';
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
     }
 
-    /* ------------ 全局與模式切換 ------------ */
     function startMode1() {
         document.getElementById('page-home').classList.remove('active');
         document.getElementById('page-mode1').classList.add('active');
@@ -511,7 +508,7 @@
         resetState1();
     }
 
-    /* ------------ 玩法一 (逐步引導模式) 邏輯 ------------ */
+    /* ------------ 玩法一 邏輯 ------------ */
     let state = {
         numberStr: '',
         digitsMap: {},
@@ -637,8 +634,8 @@
         state.leftBusValue = pSelMult * digitSel;
         state.rightBusValue = pSelMult * (digitSel + 1);
 
-        document.getElementById('left-bus-label').innerText = `${formatNumberWithSpaces(state.leftBusValue)}`;
-        document.getElementById('right-bus-label').innerText = `${formatNumberWithSpaces(state.rightBusValue)}`;
+        document.getElementById('left-bus-label').innerText = formatNumberWithSpaces(state.leftBusValue);
+        document.getElementById('right-bus-label').innerText = formatNumberWithSpaces(state.rightBusValue);
 
         const tickContainer = document.getElementById('tick-marks-container');
         tickContainer.innerHTML = '';
@@ -683,7 +680,7 @@
     }
 
     function verifyStep9() {
-        const inputVal = document.getElementById('final-rounded-input').value.replace(/\s+/g, '').trim();
+        const inputVal = document.getElementById('final-rounded-input').value.replace(/[\s\u00A0]+/g, '').trim();
         if (parseInt(inputVal, 10) === state.correctRoundedValue) {
             document.getElementById('step-complete-section').style.display = 'block';
             document.getElementById('step-complete-section').scrollIntoView({ behavior: 'smooth' });
@@ -693,7 +690,7 @@
     }
 
 
-    /* ------------ 玩法二 (挑戰模式) 邏輯 ------------ */
+    /* ------------ 玩法二 邏輯 ------------ */
     let mode2State = {
         timer: 90,
         timerInterval: null,
@@ -704,12 +701,6 @@
         currentPlace: '',
         correctAnswer: 0
     };
-
-    let mockLeaderboard = [
-        { className: '5A', studentName: '陳大文', score: 45, maxStreak: 9 },
-        { className: '5B', studentName: '李小玲', score: 35, maxStreak: 7 },
-        { className: '5A', studentName: '張志強', score: 25, maxStreak: 5 }
-    ];
 
     function initMode2() {
         mode2State.timer = 90;
@@ -744,7 +735,7 @@
     function generateM2Question() {
         const candidatePlaces = ['十', '百', '千', '萬', '十萬', '百萬'];
         
-        const numDigits = Math.floor(Math.random() * 4) + 5; // 5 to 8 digits
+        const numDigits = Math.floor(Math.random() * 4) + 5;
         const min = Math.pow(10, numDigits - 1);
         const max = Math.pow(10, numDigits) - 1;
         const num = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -757,7 +748,6 @@
         mode2State.currentPlace = randPlace;
         mode2State.correctAnswer = Math.round(num / mult) * mult;
 
-        // 💡 題目數字使用空格分隔
         document.getElementById('m2-question-text').innerText = `用四捨五入法把 ${formatNumberWithSpaces(num)} 湊整至 ${randPlace}位`;
         document.getElementById('m2-answer-input').value = '';
         document.getElementById('m2-feedback').innerText = '';
@@ -768,8 +758,7 @@
         if (mode2State.timer <= 0) return;
 
         const inputEl = document.getElementById('m2-answer-input');
-        // 💡 自動過濾學生輸入的空格及逗號
-        const cleanInput = inputEl.value.replace(/[\s,]/g, '');
+        const cleanInput = inputEl.value.replace(/[\s,\u00A0]/g, '');
         const userAns = parseInt(cleanInput, 10);
         const fb = document.getElementById('m2-feedback');
 
@@ -823,42 +812,62 @@
             className: cls,
             studentName: name,
             score: mode2State.score,
-            maxStreak: mode2State.maxStreak,
-            timestamp: new Date().toISOString()
+            maxStreak: mode2State.maxStreak
         };
 
-        mockLeaderboard.push(record);
-
-        if (GOOGLE_SCRIPT_URL) {
+        if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbwzvjGwseSfSWATjjo45Z0N2vCsTX95oWBn3jD9VXxe59G-I6_Nsmsontkv_6FGAMl5/exec") {
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(record)
-            }).catch(err => console.error('GScript Save Error:', err));
+            }).then(() => {
+                showLeaderboard();
+            }).catch(err => {
+                console.error('Save Error:', err);
+                showLeaderboard();
+            });
+        } else {
+            showLeaderboard();
+        }
+    }
+
+    // 💡 關鍵修復：從 Google Apps Script 抓取全局最新的排行榜紀錄
+    function showLeaderboard() {
+        document.getElementById('m2-submit-screen').style.display = 'none';
+        document.getElementById('m2-leaderboard-screen').style.display = 'block';
+
+        const tbody = document.getElementById('leaderboard-tbody');
+        tbody.innerHTML = '<tr><td colspan="5">⏳ 載入最新跨裝置排行榜中...</td></tr>';
+
+        if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbwzvjGwseSfSWATjjo45Z0N2vCsTX95oWBn3jD9VXxe59G-I6_Nsmsontkv_6FGAMl5/exec") {
+            fetch(GOOGLE_SCRIPT_URL)
+                .then(res => res.json())
+                .then(data => {
+                    renderLeaderboardTable(data);
+                })
+                .catch(err => {
+                    console.error('Fetch Leaderboard Error:', err);
+                    tbody.innerHTML = '<tr><td colspan="5">無法載入雲端紀錄</td></tr>';
+                });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5">請先設定有效的 GOOGLE_SCRIPT_URL 網址</td></tr>';
+        }
+    }
+
+    function renderLeaderboardTable(dataList) {
+        const tbody = document.getElementById('leaderboard-tbody');
+        tbody.innerHTML = '';
+
+        if (!dataList || dataList.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5">目前尚無榜單紀錄</td></tr>';
+            return;
         }
 
-        showLeaderboard();
-    }
+        // 排序：分數高者優先，分數相同則比連勝
+        dataList.sort((a, b) => b.score - a.score || b.maxStreak - a.maxStreak);
 
-   function showLeaderboard() {
-    document.getElementById('m2-submit-screen').style.display = 'none';
-    document.getElementById('m2-leaderboard-screen').style.display = 'block';
-
-    const tbody = document.getElementById('leaderboard-tbody');
-    tbody.innerHTML = '<tr><td colspan="5">⏳ 載入最新跨裝置排行榜中...</td></tr>';
-
-    if (GOOGLE_SCRIPT_URL) {
-        fetch(GOOGLE_SCRIPT_URL)
-            .then(res => res.json())
-            .then(data => { renderLeaderboardTable(data); })
-            .catch(err => { tbody.innerHTML = '<tr><td colspan="5">無法載入雲端紀錄</td></tr>'; });
-    }
-}
-
-        mockLeaderboard.sort((a, b) => b.score - a.score || b.maxStreak - a.maxStreak);
-
-        mockLeaderboard.forEach((item, index) => {
+        dataList.forEach((item, index) => {
             let rankBadge = `${index + 1}`;
             let rowClass = '';
             if (index === 0) { rankBadge = '🥇 1'; rowClass = 'rank-1'; }
