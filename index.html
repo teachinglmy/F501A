@@ -484,7 +484,9 @@
     // 💡 工具函式：將多位數格式化為每三位以「空格」分隔
     function formatNumberWithSpaces(num) {
         if (num === null || num === undefined) return '';
-        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        function formatNumberWithSpaces(num) {
+    if (num === null || num === undefined) return '';
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
     }
 
     /* ------------ 全局與模式切換 ------------ */
@@ -839,12 +841,20 @@
         showLeaderboard();
     }
 
-    function showLeaderboard() {
-        document.getElementById('m2-submit-screen').style.display = 'none';
-        document.getElementById('m2-leaderboard-screen').style.display = 'block';
+   function showLeaderboard() {
+    document.getElementById('m2-submit-screen').style.display = 'none';
+    document.getElementById('m2-leaderboard-screen').style.display = 'block';
 
-        const tbody = document.getElementById('leaderboard-tbody');
-        tbody.innerHTML = '';
+    const tbody = document.getElementById('leaderboard-tbody');
+    tbody.innerHTML = '<tr><td colspan="5">⏳ 載入最新跨裝置排行榜中...</td></tr>';
+
+    if (GOOGLE_SCRIPT_URL) {
+        fetch(GOOGLE_SCRIPT_URL)
+            .then(res => res.json())
+            .then(data => { renderLeaderboardTable(data); })
+            .catch(err => { tbody.innerHTML = '<tr><td colspan="5">無法載入雲端紀錄</td></tr>'; });
+    }
+}
 
         mockLeaderboard.sort((a, b) => b.score - a.score || b.maxStreak - a.maxStreak);
 
