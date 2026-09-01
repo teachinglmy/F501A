@@ -473,7 +473,7 @@
 
 <script>
     // ⚠️ 請填入你的 Google Apps Script Web App 網址
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQY4oEDRyZvqlLNrhBjwQ6cLGqnURP2nPP3bgT6_eeanxmvhqlOtQxXPMzOB0Fev3h/exec";
+    const GOOGLE_SCRIPT_URL = ("https://script.google.com/macros/s/AKfycbzQY4oEDRyZvqlLNrhBjwQ6cLGqnURP2nPP3bgT6_eeanxmvhqlOtQxXPMzOB0Fev3h/exec");
 
     const PLACE_VALUES = ['個', '十', '百', '千', '萬', '十萬', '百萬', '千萬', '億'];
     const PLACE_MULT = {
@@ -815,7 +815,7 @@
             maxStreak: mode2State.maxStreak
         };
 
-        if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbzQY4oEDRyZvqlLNrhBjwQ6cLGqnURP2nPP3bgT6_eeanxmvhqlOtQxXPMzOB0Fev3h/exec") {
+        if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== ("https://script.google.com/macros/s/AKfycbzQY4oEDRyZvqlLNrhBjwQ6cLGqnURP2nPP3bgT6_eeanxmvhqlOtQxXPMzOB0Fev3h/exec")) {
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -840,7 +840,7 @@
         const tbody = document.getElementById('leaderboard-tbody');
         tbody.innerHTML = '<tr><td colspan="5">⏳ 載入最新跨裝置排行榜中...</td></tr>';
 
-        if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbzQY4oEDRyZvqlLNrhBjwQ6cLGqnURP2nPP3bgT6_eeanxmvhqlOtQxXPMzOB0Fev3h/exec") {
+        if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== ("https://script.google.com/macros/s/AKfycbzQY4oEDRyZvqlLNrhBjwQ6cLGqnURP2nPP3bgT6_eeanxmvhqlOtQxXPMzOB0Fev3h/exec")) {
             fetch(GOOGLE_SCRIPT_URL)
                 .then(res => res.json())
                 .then(data => {
