@@ -832,7 +832,7 @@
         }
     }
 
-    // 💡 關鍵修復：從 Google Apps Script 抓取全局最新的排行榜紀錄
+  // 💡 從 Google Apps Script 抓取跨裝置排行榜紀錄
     function showLeaderboard() {
         document.getElementById('m2-submit-screen').style.display = 'none';
         document.getElementById('m2-leaderboard-screen').style.display = 'block';
@@ -847,65 +847,38 @@
                     renderLeaderboardTable(data);
                 })
                 .catch(err => {
-                    console.error('Fetch Leaderboard Error:', err);
-                    tbody.innerHTML = '<tr><td colspan="5">無法載入雲端紀錄</td></tr>';
+                    console.error('Leaderboard Fetch Error:', err);
+                    tbody.innerHTML = '<tr><td colspan="5">❌ 載入失敗，請稍後再試</td></tr>';
                 });
         } else {
-            tbody.innerHTML = '<tr><td colspan="5">請先設定有效的 GOOGLE_SCRIPT_URL 網址</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5">⚠️ 請先設定有效的 GOOGLE_SCRIPT_URL 網址</td></tr>';
         }
     }
 
-    function renderLeaderboardTable(dataList) {
+    // 💡 處理資料：同班同名去重、只留最高分、排序並截取前 10 名
+    function renderLeaderboardTable(rawData) {
         const tbody = document.getElementById('leaderboard-tbody');
-        tbody.innerHTML = '';
+        if (!tbody) return;
 
-        if (!dataList || dataList.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5">目前尚無榜單紀錄</td></tr>';
+        if (!rawData || rawData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5">暫無紀錄</td></tr>';
             return;
         }
-
-        // 排序：分數高者優先，分數相同則比連勝
-        dataList.sort((a, b) => b.score - a.score || b.maxStreak - a.maxStreak);
-
-        dataList.forEach((item, index) => {
-            let rankBadge = `${index + 1}`;
-            let rowClass = '';
-            if (index === 0) { rankBadge = '🥇 1'; rowClass = 'rank-1'; }
-            else if (index === 1) { rankBadge = '🥈 2'; rowClass = 'rank-2'; }
-            else if (index === 2) { rankBadge = '🥉 3'; rowClass = 'rank-3'; }
-
-            tbody.innerHTML += `
-                <tr class="${rowClass}">
-                    <td>${rankBadge}</td>
-                    <td>${item.className}</td>
-                    <td>${item.studentName}</td>
-                    <td><strong>${item.score}</strong> 分</td>
-                    <td>${item.maxStreak} 題</td>
-                </tr>
-            `;
-        });
-    }
-    async function loadLeaderboard() {
-    const listEl = document.getElementById('leaderboardList');
-    if (listEl) listEl.innerHTML = '<tr><td colspan="4" style="text-align:center;">載入中...</td></tr>';
-
-    try {
-        const response = await fetch(GOOGLE_SCRIPT_URL);
-        const rawData = await response.json();
 
         // 1. 同班別 + 同姓名去重（只保留最高分，同分比最高連勝）
         const studentMap = {};
         rawData.forEach(row => {
-            const className = row[1] || row.className;
-            const name = row[2] || row.name;
-            const score = Number(row[3] || row.score) || 0;
-            const streak = Number(row[4] || row.streak) || 0;
+            // 相容試算表陣列 [日期, 班別, 姓名, 分數, 連勝] 或 JSON 物件格式
+            const className = Array.isArray(row) ? row[1] : (row.className || '');
+            const name = Array.isArray(row) ? row[2] : (row.studentName || row.name || '');
+            const score = Number(Array.isArray(row) ? row[3] : row.score) || 0;
+            const streak = Number(Array.isArray(row) ? row[4] : (row.maxStreak || row.streak)) || 0;
 
-            if (!className || !name) return; // 略過標題或空列
+            if (!className || !name) return; // 略過無效資料
 
-            const key = `${className}_${name}`; // 用 班別_姓名 作為唯一辨識碼
+            const key = `${className}_${name}`; // 建立不重複的主鍵
 
-            // 如果該學生尚未記錄，或分數更高（同分則比連勝），就更新紀錄
+            // 若該學生尚未記錄，或本次分數更高（分數相同時比連勝），則覆蓋舊紀錄
             if (!studentMap[key] || 
                 score > studentMap[key].score || 
                 (score === studentMap[key].score && streak > studentMap[key].streak)) {
@@ -913,34 +886,34 @@
             }
         });
 
-        // 2. 排序（高分到低分）並只裁切前 10 名
+        // 2. 按高分（與高連勝）排序，並裁切只取頭十名
         const top10 = Object.values(studentMap)
             .sort((a, b) => (b.score !== a.score) ? (b.score - a.score) : (b.streak - a.streak))
             .slice(0, 10);
 
-        // 3. 顯示於網頁 HTML 表格
-        if (!listEl) return;
-        
         if (top10.length === 0) {
-            listEl.innerHTML = '<tr><td colspan="4" style="text-align:center;">暫無紀錄</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5">暫無紀錄</td></tr>';
             return;
         }
 
-        listEl.innerHTML = top10.map((item, index) => `
-            <tr>
-                <td>${index + 1}</td>
-                <td>${item.className} ${item.name}</td>
-                <td>${item.score}</td>
-                <td>${item.streak}</td>
-            </tr>
-        `).join('');
+        // 3. 渲染至畫面表格（前三名自動套用金銀銅底色）
+        tbody.innerHTML = top10.map((item, index) => {
+            let rankClass = '';
+            if (index === 0) rankClass = 'class="rank-1"';
+            else if (index === 1) rankClass = 'class="rank-2"';
+            else if (index === 2) rankClass = 'class="rank-3"';
 
-    } catch (error) {
-        console.error('載入龍虎榜失敗:', error);
-        if (listEl) listEl.innerHTML = '<tr><td colspan="4" style="text-align:center;">載入失敗，請稍後再試</td></tr>';
+            return `
+                <tr ${rankClass}>
+                    <td>${index + 1}</td>
+                    <td>${item.className}</td>
+                    <td>${item.name}</td>
+                    <td>${item.score}</td>
+                    <td>${item.streak}</td>
+                </tr>
+            `;
+        }).join('');
     }
-}
 </script>
-
 </body>
 </html>
