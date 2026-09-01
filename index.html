@@ -832,7 +832,7 @@
         }
     }
 
-  // 💡 從 Google Apps Script 抓取跨裝置排行榜紀錄
+// 💡 1. 抓取試算表資料
     function showLeaderboard() {
         document.getElementById('m2-submit-screen').style.display = 'none';
         document.getElementById('m2-leaderboard-screen').style.display = 'block';
@@ -855,7 +855,7 @@
         }
     }
 
-    // 💡 處理資料：同班同名去重、只留最高分、排序並截取前 10 名
+    // 💡 2. 強效去重 + 嚴格鎖定前十名
     function renderLeaderboardTable(rawData) {
         const tbody = document.getElementById('leaderboard-tbody');
         if (!tbody) return;
@@ -865,20 +865,28 @@
             return;
         }
 
-        // 1. 同班別 + 同姓名去重（只保留最高分，同分比最高連勝）
         const studentMap = {};
+
         rawData.forEach(row => {
-            // 相容試算表陣列 [日期, 班別, 姓名, 分數, 連勝] 或 JSON 物件格式
-            const className = Array.isArray(row) ? row[1] : (row.className || '');
-            const name = Array.isArray(row) ? row[2] : (row.studentName || row.name || '');
-            const score = Number(Array.isArray(row) ? row[3] : row.score) || 0;
-            const streak = Number(Array.isArray(row) ? row[4] : (row.maxStreak || row.streak)) || 0;
+            let rawClass = Array.isArray(row) ? row[1] : (row.className || '');
+            let rawName = Array.isArray(row) ? row[2] : (row.studentName || row.name || '');
+            let rawScore = Array.isArray(row) ? row[3] : row.score;
+            let rawStreak = Array.isArray(row) ? row[4] : (row.maxStreak || row.streak);
 
-            if (!className || !name) return; // 略過無效資料
+            // 過濾掉試算表標題列
+            if (rawClass === '班別' || rawName === '姓名' || rawScore === '分數') return;
 
-            const key = `${className}_${name}`; // 建立不重複的主鍵
+            // 清理前後空白，班別自動轉大寫（如 5a -> 5A）
+            const className = String(rawClass || '').trim().toUpperCase();
+            const name = String(rawName || '').trim();
+            const score = Number(rawScore) || 0;
+            const streak = Number(rawStreak) || 0;
 
-            // 若該學生尚未記錄，或本次分數更高（分數相同時比連勝），則覆蓋舊紀錄
+            if (!className || !name) return;
+
+            const key = `${className}_${name}`;
+
+            // 保留最高分數（同分則比高連勝）
             if (!studentMap[key] || 
                 score > studentMap[key].score || 
                 (score === studentMap[key].score && streak > studentMap[key].streak)) {
@@ -886,7 +894,7 @@
             }
         });
 
-        // 2. 按高分（與高連勝）排序，並裁切只取頭十名
+        // 排序並嚴格限制只取前 10 名
         const top10 = Object.values(studentMap)
             .sort((a, b) => (b.score !== a.score) ? (b.score - a.score) : (b.streak - a.streak))
             .slice(0, 10);
@@ -896,7 +904,7 @@
             return;
         }
 
-        // 3. 渲染至畫面表格（前三名自動套用金銀銅底色）
+        // 渲染表格內容（前三名自動套用金銀銅獎牌樣式）
         tbody.innerHTML = top10.map((item, index) => {
             let rankClass = '';
             if (index === 0) rankClass = 'class="rank-1"';
