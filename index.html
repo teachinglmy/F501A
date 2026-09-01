@@ -885,6 +885,61 @@
             `;
         });
     }
+    async function loadLeaderboard() {
+    const listEl = document.getElementById('leaderboardList');
+    if (listEl) listEl.innerHTML = '<tr><td colspan="4" style="text-align:center;">載入中...</td></tr>';
+
+    try {
+        const response = await fetch(GOOGLE_SCRIPT_URL);
+        const rawData = await response.json();
+
+        // 1. 同班別 + 同姓名去重（只保留最高分，同分比最高連勝）
+        const studentMap = {};
+        rawData.forEach(row => {
+            const className = row[1] || row.className;
+            const name = row[2] || row.name;
+            const score = Number(row[3] || row.score) || 0;
+            const streak = Number(row[4] || row.streak) || 0;
+
+            if (!className || !name) return; // 略過標題或空列
+
+            const key = `${className}_${name}`; // 用 班別_姓名 作為唯一辨識碼
+
+            // 如果該學生尚未記錄，或分數更高（同分則比連勝），就更新紀錄
+            if (!studentMap[key] || 
+                score > studentMap[key].score || 
+                (score === studentMap[key].score && streak > studentMap[key].streak)) {
+                studentMap[key] = { className, name, score, streak };
+            }
+        });
+
+        // 2. 排序（高分到低分）並只裁切前 10 名
+        const top10 = Object.values(studentMap)
+            .sort((a, b) => (b.score !== a.score) ? (b.score - a.score) : (b.streak - a.streak))
+            .slice(0, 10);
+
+        // 3. 顯示於網頁 HTML 表格
+        if (!listEl) return;
+        
+        if (top10.length === 0) {
+            listEl.innerHTML = '<tr><td colspan="4" style="text-align:center;">暫無紀錄</td></tr>';
+            return;
+        }
+
+        listEl.innerHTML = top10.map((item, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${item.className} ${item.name}</td>
+                <td>${item.score}</td>
+                <td>${item.streak}</td>
+            </tr>
+        `).join('');
+
+    } catch (error) {
+        console.error('載入龍虎榜失敗:', error);
+        if (listEl) listEl.innerHTML = '<tr><td colspan="4" style="text-align:center;">載入失敗，請稍後再試</td></tr>';
+    }
+}
 </script>
 
 </body>
