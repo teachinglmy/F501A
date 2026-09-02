@@ -257,6 +257,44 @@
         .rank-1 { background-color: #fff9c4 !important; font-weight: bold; }
         .rank-2 { background-color: #f5f5f5 !important; }
         .rank-3 { background-color: #ffe0b2 !important; }
+
+    /* 📱 iPad 專用虛擬數字鍵盤 */
+        .keypad-container {
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            max-width: 350px;
+            margin: 25px auto 0;
+            background: #eef2f6;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .keypad-container.active { display: grid; }
+        .key-btn {
+            background: #ffffff;
+            border: 2px solid #dcdcdc;
+            border-radius: 12px;
+            font-size: 28px;
+            padding: 15px 0;
+            text-align: center;
+            cursor: pointer;
+            color: #333;
+            font-weight: bold;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent; /* 取消手機點擊閃爍 */
+        }
+        .key-btn:active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: scale(0.95);
+        }
+        .key-btn.action-btn { background: #ffe4b5; font-size: 24px; color: #d35400; }
+        .key-btn.submit-btn { background: var(--success-color); color: white; border: none; }
+        .key-btn.submit-btn:active { background: #27ae60; }
+        .key-0 { grid-column: span 2; }
+   
     </style>
 </head>
 <body>
@@ -280,6 +318,23 @@
                 <p>限時 90 秒！挑戰電腦出題，考考你的湊整速度與準確度！</p>
             </div>
         </div>
+   
+        <!-- 虛擬數字鍵盤 -->
+    <div id="virtual-keypad" class="keypad-container">
+        <div class="key-btn" onclick="pressKey('1')">1</div>
+        <div class="key-btn" onclick="pressKey('2')">2</div>
+        <div class="key-btn" onclick="pressKey('3')">3</div>
+        <div class="key-btn" onclick="pressKey('4')">4</div>
+        <div class="key-btn" onclick="pressKey('5')">5</div>
+        <div class="key-btn" onclick="pressKey('6')">6</div>
+        <div class="key-btn" onclick="pressKey('7')">7</div>
+        <div class="key-btn" onclick="pressKey('8')">8</div>
+        <div class="key-btn" onclick="pressKey('9')">9</div>
+        <div class="key-btn key-0" onclick="pressKey('0')">0</div>
+        <div class="key-btn action-btn" onclick="pressKey('Backspace')">⌫</div>
+        <div class="key-btn submit-btn" style="grid-column: span 3;" onclick="pressKey('Enter')">確認 (Enter)</div>
+    </div>
+    
     </div>
 
     <!-- Mode 1 -->
@@ -290,8 +345,8 @@
         </div>
 
         <div id="step-1" class="step-box">
-            <p><strong>第一步：</strong>請輸入一個多位數（例如：87654321）</p>
-            <input type="number" id="num-input" value="87654321" min="1000" max="999999999">
+            <p><strong>第一步：</strong>請輸入一個多位數。</p>
+            <input type="text" id="num-input"  inputmode="none">
             <button class="btn" onclick="submitStep1()">確認輸入</button>
         </div>
 
@@ -327,7 +382,7 @@
                         <tr id="pv-result-row" style="display: none; background-color: #e8f5e9;">
                             <td colspan="9" style="text-align: left; padding: 15px;">
                                 <strong>湊整後的數：</strong>
-                                <input type="text" id="final-rounded-input" placeholder="請輸入湊整後的數">
+                                <input type="text" id="final-rounded-input" placeholder="請輸入湊整後的數" inputmode="none">
                                 <button class="btn btn-success" onclick="verifyStep9()">提交答案</button>
                             </td>
                         </tr>
@@ -415,7 +470,7 @@
             <div class="question-card">
                 <div class="question-title" id="m2-question-text">題目載入中...</div>
                 <div style="margin: 20px 0;">
-                    <input type="text" id="m2-answer-input" placeholder="請輸入答案" style="font-size: 24px; text-align: center; width: 250px;" onkeyup="if(event.key==='Enter') submitM2Answer()">
+                    <input type="text" id="m2-answer-input" placeholder="請輸入答案" style="font-size: 24px; text-align: center; width: 250px;" inputmode="none" onkeyup="if(event.key==='Enter') submitM2Answer()">
                 </div>
                 <button class="btn btn-success" style="font-size: 20px; padding: 10px 30px;" onclick="submitM2Answer()">提交答案</button>
                 <div id="m2-feedback" class="feedback-msg"></div>
@@ -472,6 +527,38 @@
 </div>
 
 <script>
+let activeInputField = null;
+
+    // 監聽所有設有 inputmode="none" 的輸入框，獲得焦點時顯示鍵盤
+    document.addEventListener('focusin', function(e) {
+        if (e.target.tagName === 'INPUT' && e.target.getAttribute('inputmode') === 'none') {
+            activeInputField = e.target;
+            const keypad = document.getElementById('virtual-keypad');
+            keypad.classList.add('active');
+            
+            // 自動將鍵盤搬移到當前輸入框的下方
+            e.target.parentNode.appendChild(keypad);
+        }
+    });
+
+    // 虛擬鍵盤按鈕觸發事件
+    function pressKey(val) {
+        if (!activeInputField) return;
+
+        if (val === 'Backspace') {
+            // 刪除最後一個字元
+            activeInputField.value = activeInputField.value.slice(0, -1);
+        } else if (val === 'Enter') {
+            // 根據當下是哪一個輸入框，觸發對應的確認按鈕功能
+            if (activeInputField.id === 'num-input') submitStep1();
+            else if (activeInputField.id === 'final-rounded-input') verifyStep9();
+            else if (activeInputField.id === 'm2-answer-input') submitM2Answer();
+        } else {
+            // 輸入數字
+            activeInputField.value += val;
+        }
+    }
+    
     // ⚠️ 請填入你的 Google Apps Script Web App 網址
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQY4oEDRyZvqlLNrhBjwQ6cLGqnURP2nPP3bgT6_eeanxmvhqlOtQxXPMzOB0Fev3h/exec";
 
@@ -505,6 +592,8 @@
         document.getElementById('page-mode1').classList.remove('active');
         document.getElementById('page-mode2').classList.remove('active');
         document.getElementById('page-home').classList.add('active');
+        // 👇 加上這一行，確保切換回首頁時關閉虛擬鍵盤
+        document.getElementById('virtual-keypad').classList.remove('active');
         resetState1();
     }
 
