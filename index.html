@@ -258,12 +258,12 @@
         .rank-2 { background-color: #f5f5f5 !important; }
         .rank-3 { background-color: #ffe0b2 !important; }
 
-    /* 📱 iPad 專用虛擬數字鍵盤 */
+/* 📱 iPad 專用虛擬數字鍵盤 (保留原寬度，按鈕優化版) */
         .keypad-container {
             display: none;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            max-width: 350px;
+            gap: 12px; /* 維持原本間距 */
+            max-width: 350px; /* 維持原本寬度 */
             margin: 25px auto 0;
             background: #eef2f6;
             padding: 20px;
@@ -271,27 +271,33 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         .keypad-container.active { display: grid; }
+        
         .key-btn {
             background: #ffffff;
             border: 2px solid #dcdcdc;
             border-radius: 12px;
-            font-size: 28px;
-            padding: 15px 0;
+            font-size: 32px; /* 放大數字 */
+            padding: 22px 0; /* 增加按鈕高度，讓觸控範圍更大 */
             text-align: center;
             cursor: pointer;
             color: #333;
             font-weight: bold;
             user-select: none;
-            -webkit-tap-highlight-color: transparent; /* 取消手機點擊閃爍 */
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* 增加立體感 */
+            transition: all 0.1s ease-out; /* 增加回饋順滑度 */
         }
+        
         .key-btn:active {
             background: var(--primary-color);
             color: white;
             border-color: var(--primary-color);
-            transform: scale(0.95);
+            transform: scale(0.92); /* 點擊時有明顯下壓感 */
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
         }
-        .key-btn.action-btn { background: #ffe4b5; font-size: 24px; color: #d35400; }
-        .key-btn.submit-btn { background: var(--success-color); color: white; border: none; }
+        
+        .key-btn.action-btn { background: #ffe4b5; font-size: 28px; color: #d35400; }
+        .key-btn.submit-btn { background: var(--success-color); color: white; border: none; font-size: 24px; }
         .key-btn.submit-btn:active { background: #27ae60; }
         .key-0 { grid-column: span 2; }
    
